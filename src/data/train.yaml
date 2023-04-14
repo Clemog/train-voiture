@@ -17,4 +17,5 @@ train . carte réduction:
 train . pourcentage réduction:
   question: Quelle réduction ?
   description: 30% pour la carte avantage
-  par défaut: 30 %
+  par défaut: 30
+  unité: '%'

@@ -1,6 +1,20 @@
 # Temps, €, carbone
 
+trajet:
+
+trajet . voyageurs:
+  question: Combien de voyageurs ?
+  par défaut: 1
+
 trajet voiture:
+
+trajet voiture . coût trajet par personne:
+  titre: Coût du trajet en voiture par personne
+  formule:
+    variations:
+      - si: trajet . voyageurs > 0
+        alors: coût trajet / trajet . voyageurs
+      - sinon: coût trajet
 
 trajet voiture . coût trajet:
   titre: Coût du trajet en voiture
@@ -9,6 +23,7 @@ trajet voiture . coût trajet:
       - voiture . coût au km * distance
       - coûts fixes
       - péages
+    unité: €
 
 trajet voiture . prix carburant:
   question: Quel est le prix du carburant ?
@@ -47,6 +62,10 @@ trajet voiture . péages:
   formule: 30 €
 
 trajet train:
+
+trajet train . coût trajet total:
+  titre: Coût du trajet en train par personne
+  formule: coût trajet * trajet . voyageurs
 
 trajet train . coût trajet:
   formule: distance * train . prix au km * train . réduction

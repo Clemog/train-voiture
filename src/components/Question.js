@@ -1,75 +1,43 @@
-import React, { useContext } from 'react'
+import { useMemo } from 'react'
+import ChoicesInput from './question/ChoicesInput'
+import NumberInput from './question/NumberInput'
 import styled from 'styled-components'
 
-import RulesContext from 'utils/RulesContext'
-import Progress from './questions/Progress'
-import Label from './questions/Label'
-import Suggestions from './questions/Suggestions'
-import Question from './questions/Question'
-import Navigation from './questions/Navigation'
-import Visualization from './questions/Visualization'
-import Description from './questions/Description'
-import Chart from './questions/Chart'
-
-const Wrapper = styled.form`
-  position: relative;
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  background-color: ${(props) => props.theme.colors.second};
-  border-radius: 1rem;
-  overflow: hidden;
+const QuestionTitle = styled.div`
+  margin-bottom: 1rem;
 `
-export default function Questions(props) {
-  const {
-    engine,
-    questionsOfCategory: questions,
-    curQuestion,
-    setCurQuestion,
-    setSituation,
-  } = useContext(RulesContext)
+
+export default function Question(props) {
+  const type = useMemo(() => {
+    if (
+      props.evaluation.unit === undefined &&
+      (props.rule.rawNode.type === 'booléen' ||
+        props.rule.rawNode.type === undefined) &&
+      typeof props.evaluation.nodeValue !== 'number'
+    ) {
+      return 'choices'
+    }
+    return 'number'
+  }, [props.evaluation, props.rule])
 
   return (
-    <>
-      <Wrapper
-        onSubmit={(e) => {
-          e.preventDefault()
-        }}
-      >
-        <Progress
-          questions={questions}
-          curQuestion={curQuestion}
-          setCurQuestion={setCurQuestion}
+    <div>
+      <QuestionTitle>{props.rule.rawNode.question}</QuestionTitle>
+      {type === 'choices' ? (
+        <ChoicesInput
+          rule={props.rule}
+          evaluation={props.evaluation}
+          value={props.value || ''}
+          onChange={props.onChange}
         />
-        <Label rule={questions[curQuestion][1]} />
-        <Suggestions
-          rule={questions[curQuestion][1]}
-          evaluation={engine.evaluate(questions[curQuestion][1].dottedName)}
-          onChange={setSituation}
+      ) : (
+        <NumberInput
+          rule={props.rule}
+          evaluation={props.evaluation}
+          value={props.value || ''}
+          onChange={props.onChange}
         />
-        <Question
-          name={questions[curQuestion][0]}
-          rule={questions[curQuestion][1]}
-          evaluation={engine.evaluate(questions[curQuestion][1].dottedName)}
-          value={
-            engine.evaluate(questions[curQuestion][1].dottedName).nodeValue
-          }
-          onChange={setSituation}
-        />
-        <Navigation
-          curQuestion={curQuestion}
-          gotoNextQuestion={() =>
-            curQuestion + 1 < questions.length
-              ? setCurQuestion((prevCurQuestion) => prevCurQuestion + 1)
-              : props.setStatus('completed')
-          }
-          gotoPrevQuestion={() =>
-            setCurQuestion((prevCurQuestion) => prevCurQuestion - 1)
-          }
-        />
-      </Wrapper>
-      <Chart rule={questions[curQuestion][1]} />
-      <Description rule={questions[curQuestion][1]} />
-      <Visualization rule={questions[curQuestion][1]} />
-    </>
+      )}
+    </div>
   )
 }
