@@ -6,6 +6,7 @@ import Engine from 'publicodes'
 import publicodesRules from '../src/utils/publicodesRules'
 import useSituation from '../src/hooks/useSituation'
 import Question from '../src/components/Question'
+import NumberInput from '../src/components/question/NumberInput'
 
 import { serializeUnit } from 'publicodes'
 import { roundValue } from '../src/utils/utils'
@@ -25,7 +26,11 @@ export default function Trajet(props) {
   const trainEvaluation = engine.evaluate('trajet train . coût trajet total')
 
   const carQuestions = carEvaluation.traversedVariables.reduce((acc, rule) => {
-    if (engine.publicParsedRules[rule]?.rawNode.question) {
+    const ruleRawNode = engine.publicParsedRules[rule]?.rawNode
+    if (
+      ruleRawNode?.question &&
+      !Object.keys(ruleRawNode).includes('injecté')
+    ) {
       acc.push([rule, engine.publicParsedRules[rule]])
     }
     return acc
@@ -33,13 +38,19 @@ export default function Trajet(props) {
 
   const trainQuestions = trainEvaluation.traversedVariables.reduce(
     (acc, rule) => {
-      if (engine.publicParsedRules[rule]?.rawNode.question) {
+      const ruleRawNode = engine.publicParsedRules[rule]?.rawNode
+      if (
+        ruleRawNode?.question &&
+        !Object.keys(ruleRawNode).includes('injecté')
+      ) {
         acc.push([rule, engine.publicParsedRules[rule]])
       }
       return acc
     },
     []
   )
+  console.log(trainQuestions)
+  const voyageursEvaluation = engine.evaluate('trajet . voyageurs')
 
   return (
     <main>
@@ -48,6 +59,13 @@ export default function Trajet(props) {
         <Link href="/">Retourner à l'accueil</Link>
       </h2>
       <h2>Trajet: Nantes-Orléans</h2>
+      <Question
+        name={'trajet . voyageurs'}
+        rule={engine.publicParsedRules['trajet . voyageurs']}
+        evaluation={voyageursEvaluation}
+        value={voyageursEvaluation.nodeValue}
+        onChange={setSituation}
+      />
       <Wrapper>
         <div>
           <h3>En voiture</h3>
